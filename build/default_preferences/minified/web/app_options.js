@@ -2,7 +2,7 @@
  * @licstart The following is the entire license notice for the
  * Javascript code in this page
  *
- * Copyright 2021 Mozilla Foundation
+ * Copyright 2022 Mozilla Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,18 +37,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var compatibilityParams = Object.create(null);
 exports.compatibilityParams = compatibilityParams;
 {
-  var userAgent = typeof navigator !== "undefined" && navigator.userAgent || "";
-  var platform = typeof navigator !== "undefined" && navigator.platform || "";
-  var maxTouchPoints = typeof navigator !== "undefined" && navigator.maxTouchPoints || 1;
+  if (typeof navigator === "undefined") {
+    globalThis.navigator = Object.create(null);
+  }
+
+  var userAgent = navigator.userAgent || "";
+  var platform = navigator.platform || "";
+  var maxTouchPoints = navigator.maxTouchPoints || 1;
   var isAndroid = /Android/.test(userAgent);
   var isIOS = /\b(iPad|iPhone|iPod)(?=;)/.test(userAgent) || platform === "MacIntel" && maxTouchPoints > 1;
-  var isIOSChrome = /CriOS/.test(userAgent);
-
-  (function checkOnBlobSupport() {
-    if (isIOSChrome) {
-      compatibilityParams.disableCreateObjectURL = true;
-    }
-  })();
 
   (function checkCanvasSizeLimitation() {
     if (isIOS || isAndroid) {
@@ -236,7 +233,7 @@ var defaultOptions = {
     kind: OptionKind.VIEWER
   };
   defaultOptions.locale = {
-    value: typeof navigator !== "undefined" ? navigator.language : "en-US",
+    value: navigator.language || "en-US",
     kind: OptionKind.VIEWER
   };
   defaultOptions.sandboxBundleSrc = {
