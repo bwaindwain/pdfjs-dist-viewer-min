@@ -25,48 +25,33 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.compatibilityParams = exports.OptionKind = exports.AppOptions = void 0;
-
-function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
-
-var compatibilityParams = Object.create(null);
+const compatibilityParams = Object.create(null);
 exports.compatibilityParams = compatibilityParams;
 {
   if (typeof navigator === "undefined") {
     globalThis.navigator = Object.create(null);
   }
 
-  var userAgent = navigator.userAgent || "";
-  var platform = navigator.platform || "";
-  var maxTouchPoints = navigator.maxTouchPoints || 1;
-  var isAndroid = /Android/.test(userAgent);
-  var isIOS = /\b(iPad|iPhone|iPod)(?=;)/.test(userAgent) || platform === "MacIntel" && maxTouchPoints > 1;
+  const userAgent = navigator.userAgent || "";
+  const platform = navigator.platform || "";
+  const maxTouchPoints = navigator.maxTouchPoints || 1;
+  const isAndroid = /Android/.test(userAgent);
+  const isIOS = /\b(iPad|iPhone|iPod)(?=;)/.test(userAgent) || platform === "MacIntel" && maxTouchPoints > 1;
 
   (function checkCanvasSizeLimitation() {
     if (isIOS || isAndroid) {
       compatibilityParams.maxCanvasPixels = 5242880;
     }
   })();
-
-  (function checkResizeObserver() {
-    if (typeof ResizeObserver === "undefined") {
-      compatibilityParams.annotationEditorMode = -1;
-    }
-  })();
 }
-var OptionKind = {
+const OptionKind = {
   VIEWER: 0x02,
   API: 0x04,
   WORKER: 0x08,
   PREFERENCE: 0x80
 };
 exports.OptionKind = OptionKind;
-var defaultOptions = {
+const defaultOptions = {
   annotationEditorMode: {
     value: -1,
     kind: OptionKind.VIEWER + OptionKind.PREFERENCE
@@ -262,94 +247,83 @@ var defaultOptions = {
     kind: OptionKind.VIEWER
   };
 }
-var userOptions = Object.create(null);
+const userOptions = Object.create(null);
 
-var AppOptions = /*#__PURE__*/function () {
-  function AppOptions() {
-    _classCallCheck(this, AppOptions);
-
+class AppOptions {
+  constructor() {
     throw new Error("Cannot initialize AppOptions.");
   }
 
-  _createClass(AppOptions, null, [{
-    key: "get",
-    value: function get(name) {
-      var userOption = userOptions[name];
+  static get(name) {
+    const userOption = userOptions[name];
 
-      if (userOption !== undefined) {
-        return userOption;
-      }
-
-      var defaultOption = defaultOptions[name];
-
-      if (defaultOption !== undefined) {
-        var _compatibilityParams$;
-
-        return (_compatibilityParams$ = compatibilityParams[name]) !== null && _compatibilityParams$ !== void 0 ? _compatibilityParams$ : defaultOption.value;
-      }
-
-      return undefined;
+    if (userOption !== undefined) {
+      return userOption;
     }
-  }, {
-    key: "getAll",
-    value: function getAll() {
-      var kind = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      var options = Object.create(null);
 
-      for (var name in defaultOptions) {
-        var _compatibilityParams$2;
+    const defaultOption = defaultOptions[name];
 
-        var defaultOption = defaultOptions[name];
+    if (defaultOption !== undefined) {
+      var _compatibilityParams$;
 
-        if (kind) {
-          if ((kind & defaultOption.kind) === 0) {
+      return (_compatibilityParams$ = compatibilityParams[name]) !== null && _compatibilityParams$ !== void 0 ? _compatibilityParams$ : defaultOption.value;
+    }
+
+    return undefined;
+  }
+
+  static getAll() {
+    let kind = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    const options = Object.create(null);
+
+    for (const name in defaultOptions) {
+      var _compatibilityParams$2;
+
+      const defaultOption = defaultOptions[name];
+
+      if (kind) {
+        if ((kind & defaultOption.kind) === 0) {
+          continue;
+        }
+
+        if (kind === OptionKind.PREFERENCE) {
+          const value = defaultOption.value,
+                valueType = typeof value;
+
+          if (valueType === "boolean" || valueType === "string" || valueType === "number" && Number.isInteger(value)) {
+            options[name] = value;
             continue;
           }
 
-          if (kind === OptionKind.PREFERENCE) {
-            var value = defaultOption.value,
-                valueType = _typeof(value);
-
-            if (valueType === "boolean" || valueType === "string" || valueType === "number" && Number.isInteger(value)) {
-              options[name] = value;
-              continue;
-            }
-
-            throw new Error("Invalid type for preference: ".concat(name));
-          }
+          throw new Error(`Invalid type for preference: ${name}`);
         }
-
-        var userOption = userOptions[name];
-        options[name] = userOption !== undefined ? userOption : (_compatibilityParams$2 = compatibilityParams[name]) !== null && _compatibilityParams$2 !== void 0 ? _compatibilityParams$2 : defaultOption.value;
       }
 
-      return options;
+      const userOption = userOptions[name];
+      options[name] = userOption !== undefined ? userOption : (_compatibilityParams$2 = compatibilityParams[name]) !== null && _compatibilityParams$2 !== void 0 ? _compatibilityParams$2 : defaultOption.value;
     }
-  }, {
-    key: "set",
-    value: function set(name, value) {
-      userOptions[name] = value;
-    }
-  }, {
-    key: "setAll",
-    value: function setAll(options) {
-      for (var name in options) {
-        userOptions[name] = options[name];
-      }
-    }
-  }, {
-    key: "remove",
-    value: function remove(name) {
-      delete userOptions[name];
-    }
-  }, {
-    key: "_hasUserOptions",
-    value: function _hasUserOptions() {
-      return Object.keys(userOptions).length > 0;
-    }
-  }]);
 
-  return AppOptions;
-}();
+    return options;
+  }
+
+  static set(name, value) {
+    userOptions[name] = value;
+  }
+
+  static setAll(options) {
+    for (const name in options) {
+      userOptions[name] = options[name];
+    }
+  }
+
+  static remove(name) {
+    delete userOptions[name];
+  }
+
+  static _hasUserOptions() {
+    return Object.keys(userOptions).length > 0;
+  }
+
+}
 
 exports.AppOptions = AppOptions;
