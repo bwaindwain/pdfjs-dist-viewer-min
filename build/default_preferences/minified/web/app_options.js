@@ -304,8 +304,10 @@ class AppOptions {
   static remove(name) {
     delete userOptions[name];
   }
-  static _hasUserOptions() {
-    return Object.keys(userOptions).length > 0;
-  }
 }
 exports.AppOptions = AppOptions;
+{
+  AppOptions._hasUserOptions = function () {
+    return Object.keys(userOptions).length > 0;
+  };
+}
